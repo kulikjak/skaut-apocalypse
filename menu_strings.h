@@ -1,6 +1,6 @@
 
 const char *main_menu_strings[] = {
-  "[VAULT B42 INSTRUCTIONS]                                                                                                                                                                  ",
+  "[VAULT B42 INSTRUCTIONS]",
   "[Nuclear warheads operation manual]",
   "[Nuclear missiles status]",
   "[Main Base Communication Channel]",
@@ -22,7 +22,7 @@ const char *missile_menu_strings[] = {
 };
 
 const char *missile_menu_desc[] = {
-  "    STATUS: Missile launched (16:34 CET) - Launch bay empty                                                                                                                              ",
+  "    STATUS: Missile launched (16:34 CET) - Launch bay empty",
   "    STATUS: Missile launched (16:34 CET) - Launch bay empty",
   "    STATUS: Missile launched (16:35 CET) - Launch bay empty",
   "    STATUS: Missile launched (16:35 CET) - Launch bay empty",
@@ -33,7 +33,7 @@ const char *missile_menu_desc[] = {
 };
 
 const char* log_menu_strings[] = {
-  "[October 23, 2018]                                                                                                                                                                        ",
+  "[October 23, 2018]",
   "[December 25, 2018]",
   "[Back]",
   (char *)NULL

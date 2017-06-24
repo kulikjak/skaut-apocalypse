@@ -1,15 +1,15 @@
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 #include <curses.h>
 #include <menu.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <linux/reboot.h>
-#include <sys/reboot.h>
 
 #include "menu_strings.h"
 #include "text_strings.h"
+
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define MIN(a, b) ((a < b) ? a : b)
@@ -24,12 +24,16 @@
 #define PRINT_SLEEP_TIME 35000
 #define PRINT_CHUNK_SIZE 5
 
+#define SHUTDOWN_ON_EXIT false
+#define CHECK_AUTHORIZATION true
 
 #define KEY_ENTERX 10
 
 
 // global variables
 struct winsize w;
+int shutdown_counter;
+bool shutdown_allowed;
 
 MENU* main_menu;
 MENU* missile_menu;
@@ -40,18 +44,18 @@ ITEM** missile_menu_items;
 ITEM** log_menu_items;
 
 
+inline void set_menu(MENU* menu, WINDOW* menu_window) {
+  set_menu_fore(menu, COLOR_PAIR(1) | A_REVERSE | WA_BOLD);
+  set_menu_back(menu, COLOR_PAIR(1) | WA_BOLD);
+  set_menu_grey(menu, COLOR_PAIR(2) | WA_BOLD);
+
+  set_menu_win(menu, menu_window);
+  set_menu_format(menu, w.ws_row - (MENU_MARGIN_TOP + MENU_MARGIN_BOTTOM), 1);
+  set_menu_sub(menu, derwin(menu_window, 0, 0, 0, 0));
+}
+
 MENU* init_menus(WINDOW* menu_window) {
   int i, count;
-
-  inline void set_menu(MENU* menu, WINDOW* menu_window) {
-    set_menu_fore(menu, COLOR_PAIR(1) | A_REVERSE | WA_BOLD);
-    set_menu_back(menu, COLOR_PAIR(1) | WA_BOLD);
-    set_menu_grey(menu, COLOR_PAIR(2) | WA_BOLD);
-
-    set_menu_win(menu, menu_window);
-    set_menu_format(menu, w.ws_row - (MENU_MARGIN_TOP + MENU_MARGIN_BOTTOM), 1);
-    set_menu_sub(menu, derwin(menu_window, 0, 0, 0, 0));
-  }
 
   // main menu strings
   count = ARRAY_SIZE(main_menu_strings);
@@ -120,6 +124,7 @@ void print_text(WINDOW* text_window, const char* text) {
 }
 
 void text_window(const char** text, int count) {
+  int i;
   WINDOW* text_window;
   text_window = newwin(w.ws_row - (MENU_MARGIN_TOP + MENU_MARGIN_BOTTOM),
                        w.ws_col - (MENU_MARGIN_LEFT + MENU_MARGIN_RIGHT),
@@ -129,7 +134,7 @@ void text_window(const char** text, int count) {
   wbkgd(text_window, COLOR_PAIR(1) | WA_BOLD);
   scrollok(text_window, TRUE);
 
-  for (int i = 0; i < count; i++) {
+  for (i = 0; i < count; i++) {
     print_text(text_window, text[i]);
     getch();
     wclear(text_window);
@@ -138,7 +143,7 @@ void text_window(const char** text, int count) {
   delwin(text_window);
 }
 
-void popup_window(char* message) {
+void popup_window(char* message, bool wait) {
   int window_width = MIN(100, w.ws_col - 20);
   WINDOW* popup_window = newwin(5, window_width, (w.ws_row - 7) / 2, (w.ws_col - window_width) / 2);
 
@@ -148,19 +153,55 @@ void popup_window(char* message) {
   mvwprintw(popup_window, 5/2, (window_width - strlen(message))/2, "%s", message);
   wrefresh(popup_window);
 
-  getch();
+  if (wait) getch();
   delwin(popup_window);
+}
+
+bool check_drive() {
+  FILE *fp;
+  char path[1035];
+
+  fp = popen("sudo fdisk -l 2>/dev/null | grep sdc | wc -l", "r");
+  if (fp == NULL)
+    return false;
+
+  while (fgets(path, sizeof(path)-1, fp) != NULL) {
+    if (NULL != strstr(path, "2")) {
+      pclose(fp);
+      return true;
+    }
+  }
+  pclose(fp);
+  return false;
+}
+
+void authorize() {
+  popup_window("Checking authorization card", false);
+  sleep(2);
+  while (!check_drive()) {
+    popup_window("Not Authorized - please enter authorization card and press any key...", true);
+    popup_window("Checking authorization card", false);
+    sleep(2);
+  }
 }
 
 void shutdown_pc() {
   sync();
-  reboot(LINUX_REBOOT_CMD_POWER_OFF);
+  system("init 0");
 }
 
 int main(int argc, char* argv[]) {
-  int c;
+  int c, choice;
   MENU *current_menu;
   WINDOW *menu_window;
+
+  shutdown_counter = 0;
+  shutdown_allowed = true;
+
+  if (getuid() != 0) {
+    printf("Must be run as root.\n");
+    exit(EXIT_FAILURE);
+  }
 
   initscr();
   start_color();
@@ -196,11 +237,12 @@ int main(int argc, char* argv[]) {
 
   refresh();
 
-  /* Post the menu */
+  // authorize user with removable media
+  if (CHECK_AUTHORIZATION) authorize();
+
+  // Post current menu
   post_menu(current_menu);
   wrefresh(menu_window);
-
-  int choice;
 
   while ((c = wgetch(menu_window)) != KEY_F(1)) {
     switch (c) {
@@ -209,6 +251,14 @@ int main(int argc, char* argv[]) {
         break;
       case KEY_UP:
         menu_driver(current_menu, REQ_UP_ITEM);
+        break;
+      case KEY_HOME:
+        shutdown_counter++;
+        if (shutdown_counter >= 5) {
+          shutdown_allowed = false;
+          mvprintw(1, MENU_MARGIN_LEFT, "Shutdown will not happen");
+          refresh();
+        }
         break;
       case KEY_ENTERX:
         unpost_menu(current_menu);
@@ -226,7 +276,7 @@ int main(int argc, char* argv[]) {
               current_menu = missile_menu;
               break;
             case 3:  // [Main Base Communication Channel]
-              popup_window("Communication channel DISCONNECTED!");
+              popup_window("Communication channel DISCONNECTED!", true);
               break;
             case 4:  // [Evacuation Instructions] TODO
               text_window(test_text, 2);
@@ -235,9 +285,11 @@ int main(int argc, char* argv[]) {
               current_menu = log_menu;
               break;
             case 6:  // [Exit Terminal]
-              /* shutdown_pc(); */
               free_menus();
               endwin();
+              if (SHUTDOWN_ON_EXIT && shutdown_allowed) {
+                shutdown_pc();
+              }
               exit(EXIT_SUCCESS);
               break;
             default:
@@ -247,7 +299,7 @@ int main(int argc, char* argv[]) {
 
         } else if (current_menu == missile_menu) {
           if (choice >= 0 && choice < 6) {
-            popup_window("Missile Launch bay is empty!");
+            popup_window("Missile Launch bay is empty!", true);
           } else if (choice == 6) {
             current_menu = main_menu;
           } else {

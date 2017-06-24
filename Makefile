@@ -1,5 +1,5 @@
 CXX=gcc
-CFLAGS=-Wall -pedantic -O3
+CFLAGS=-Wall -pedantic -Wno-unused-result -O3
 LIBS=-lncurses -lmenu
 
 Apocalypse: main.c menu_strings.h text_strings.h
