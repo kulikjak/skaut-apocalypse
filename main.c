@@ -24,7 +24,7 @@
 #define PRINT_SLEEP_TIME 35000
 #define PRINT_CHUNK_SIZE 5
 
-#define SHUTDOWN_ON_EXIT false
+#define SHUTDOWN_ON_EXIT true
 #define CHECK_AUTHORIZATION true
 
 #define KEY_ENTERX 10
@@ -179,7 +179,7 @@ void authorize() {
   popup_window("Checking authorization card", false);
   sleep(2);
   while (!check_drive()) {
-    popup_window("Not Authorized - please enter authorization card and press any key...", true);
+    popup_window("Authorization failed - enter auth card and press enter.", true);
     popup_window("Checking authorization card", false);
     sleep(2);
   }
@@ -267,7 +267,7 @@ int main(int argc, char* argv[]) {
         if (current_menu == main_menu) {
           switch (choice) {
             case 0:  // [VAULT B42 INSTRUCTIONS] TODO
-              text_window(test_text, 2);
+              text_window(instructions, 1);
               break;
             case 1:  // [Nuclear warheads operation manual] TODO
               text_window(test_text, 2);
