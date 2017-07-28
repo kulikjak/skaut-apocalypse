@@ -24,7 +24,7 @@
 #define PRINT_SLEEP_TIME 35000
 #define PRINT_CHUNK_SIZE 5
 
-#define SHUTDOWN_ON_EXIT true
+#define SHUTDOWN_ON_EXIT false
 #define CHECK_AUTHORIZATION true
 
 #define KEY_ENTERX 10
@@ -269,8 +269,8 @@ int main(int argc, char* argv[]) {
             case 0:  // [VAULT B42 INSTRUCTIONS] TODO
               text_window(instructions, 1);
               break;
-            case 1:  // [Nuclear warheads operation manual] TODO
-              text_window(test_text, 2);
+            case 1:  // [Nuclear warheads operation manual]
+              text_window(launch, 3);
               break;
             case 2:  // [Nuclear missiles status]
               current_menu = missile_menu;
@@ -278,8 +278,8 @@ int main(int argc, char* argv[]) {
             case 3:  // [Main Base Communication Channel]
               popup_window("Communication channel DISCONNECTED!", true);
               break;
-            case 4:  // [Evacuation Instructions] TODO
-              text_window(test_text, 2);
+            case 4:  // [Evacuation Instructions]
+              text_window(evacuation, 2);
               break;
             case 5:  // [Overseer's Log]
               current_menu = log_menu;
@@ -308,13 +308,22 @@ int main(int argc, char* argv[]) {
 
         } else if (current_menu == log_menu) {
           switch (choice) {
-            case 0:  // TODO
-              text_window(test_text, 2);
+            case 0:
+              text_window(story_1, 1);
               break;
-            case 1:  // TODO
-              text_window(test_text, 2);
+            case 1:
+              text_window(story_2, 1);
               break;
-            case 2:  // [Back]
+            case 2:
+              text_window(story_3, 1);
+              break;
+            case 3:
+              text_window(story_4, 1);
+              break;
+            case 4:
+              text_window(story_5, 1);
+              break;
+            case 5:  // [Back]
               current_menu = main_menu;
               break;
             default:

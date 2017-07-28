@@ -22,19 +22,22 @@ const char *missile_menu_strings[] = {
 };
 
 const char *missile_menu_desc[] = {
-  "    STATUS: Missile launched (16:34 CET) - Launch bay empty",
-  "    STATUS: Missile launched (16:34 CET) - Launch bay empty",
-  "    STATUS: Missile launched (16:35 CET) - Launch bay empty",
-  "    STATUS: Missile launched (16:35 CET) - Launch bay empty",
-  "    STATUS: Missile launched (16:35 CET) - Launch bay empty",
-  "    STATUS: Missile launched (16:36 CET) - Launch bay empty",
+  "    STATUS: Missile launched (16:34 CET)",
+  "    STATUS: Missile launched (16:34 CET)",
+  "    STATUS: Missile launched (16:35 CET)",
+  "    STATUS: Missile launched (16:35 CET)",
+  "    STATUS: Missile launched (16:35 CET)",
+  "    STATUS: Missile launched (16:36 CET)",
   "",
   (char *)NULL,
 };
 
 const char* log_menu_strings[] = {
-  "[October 23, 2018]",
-  "[December 25, 2018]",
+  "[May 19, 2017]",
+  "[September 14, 2017]",
+  "[September 15, 2017]",
+  "[September 21, 2017]",
+  "[September 23, 2017]",
   "[Back]",
   (char *)NULL
 };
