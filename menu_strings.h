@@ -1,43 +1,40 @@
 
 const char *main_menu_strings[] = {
-  "[VAULT B42 INSTRUCTIONS]",
-  "[Nuclear warheads operation manual]",
-  "[Nuclear missiles status]",
-  "[Main Base Communication Channel]",
-  "[Evacuation Instructions]",
-  "[Overseer's Log]",
+  "[Constellatio]",
+  "[Konstanta jemne struktury - tip]",
+  "[Instrukce]",
+  "[Vzorky]",
+  "[Prirucka pro zivot v izolaci]",
+  "[Vertykalshtina]",
   "[Exit Terminal]",
   (char *)NULL,
 };
 
-const char *missile_menu_strings[] = {
-  "[Missile Bay 1]",
-  "[Missile Bay 2]",
-  "[Missile Bay 3]",
-  "[Missile Bay 4]",
-  "[Missile Bay 5]",
-  "[Missile Bay 6]",
-  "[Back]",
+const char *samples_menu_strings[] = {
+  "[CF351]",
+  "[GE779]",
+  "[AW903]",
+  "[CX774]",
+  "[GW381]",
+  "[Zpet]",
   (char *)NULL,
 };
 
-const char *missile_menu_desc[] = {
-  "    STATUS: Missile launched (16:34 CET)",
-  "    STATUS: Missile launched (16:34 CET)",
-  "    STATUS: Missile launched (16:35 CET)",
-  "    STATUS: Missile launched (16:35 CET)",
-  "    STATUS: Missile launched (16:35 CET)",
-  "    STATUS: Missile launched (16:36 CET)",
+const char *samples_menu_desc[] = {
+  "    Puvod: Mars   | Datum odberu: 8590.17AD | Tvrdost: 3",
+  "    Puvod: Vulcan | Datum odberu: 8987.77AD | Tvrdost: 7",
+  "    Puvod: Protos | Datum odberu: 8637.21AD | Tvrdost: 4",
+  "    Puvod: Venuse | Datum odberu: 8436.25AD | Tvrdost: 3",
+  "    Puvod: Mars   | Datum odberu: 8192.01AD | Tvrdost: 2",
   "",
   (char *)NULL,
 };
 
-const char* log_menu_strings[] = {
-  "[May 19, 2017]",
-  "[September 14, 2017]",
-  "[September 15, 2017]",
-  "[September 21, 2017]",
-  "[September 23, 2017]",
-  "[Back]",
+const char* instructions_menu_strings[] = {
+  "[Denominace 1 radu]",
+  "[Denominace 2 radu]",
+  "[Denominace 3 radu]",
+  "[Denominace 4 radu]",
+  "[Zpet]",
   (char *)NULL
 };

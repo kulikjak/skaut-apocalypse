@@ -24,7 +24,7 @@
 #define PRINT_SLEEP_TIME 35000
 #define PRINT_CHUNK_SIZE 5
 
-#define SHUTDOWN_ON_EXIT false
+#define SHUTDOWN_ON_EXIT true
 #define CHECK_AUTHORIZATION true
 
 #define KEY_ENTERX 10
@@ -36,12 +36,12 @@ int shutdown_counter;
 bool shutdown_allowed;
 
 MENU* main_menu;
-MENU* missile_menu;
-MENU* log_menu;
+MENU* samples_menu;
+MENU* instructions_menu;
 
 ITEM** main_menu_items;
-ITEM** missile_menu_items;
-ITEM** log_menu_items;
+ITEM** samples_menu_items;
+ITEM** instructions_menu_items;
 
 
 inline void set_menu(MENU* menu, WINDOW* menu_window) {
@@ -66,25 +66,25 @@ MENU* init_menus(WINDOW* menu_window) {
   main_menu = new_menu((ITEM**)main_menu_items);
 
   // missile menu strings
-  count = ARRAY_SIZE(missile_menu_strings);
-  missile_menu_items = (ITEM**) calloc (count, sizeof(ITEM*));
+  count = ARRAY_SIZE(samples_menu_strings);
+  samples_menu_items = (ITEM**) calloc (count, sizeof(ITEM*));
   for (i = 0; i < count; ++i)
-    missile_menu_items[i] = new_item(missile_menu_strings[i], missile_menu_desc[i]);
+    samples_menu_items[i] = new_item(samples_menu_strings[i], samples_menu_desc[i]);
 
-  missile_menu = new_menu((ITEM**)missile_menu_items);
-  menu_opts_on(missile_menu, O_SHOWDESC);
+  samples_menu = new_menu((ITEM**)samples_menu_items);
+  menu_opts_on(samples_menu, O_SHOWDESC);
 
   // log menu strings
-  count = ARRAY_SIZE(log_menu_strings);
-  log_menu_items = (ITEM**) calloc (count, sizeof(ITEM*));
+  count = ARRAY_SIZE(instructions_menu_strings);
+  instructions_menu_items = (ITEM**) calloc (count, sizeof(ITEM*));
   for (i = 0; i < count; ++i)
-    log_menu_items[i] = new_item(log_menu_strings[i], NULL);
+    instructions_menu_items[i] = new_item(instructions_menu_strings[i], NULL);
 
-  log_menu = new_menu((ITEM**)log_menu_items);
+  instructions_menu = new_menu((ITEM**)instructions_menu_items);
 
   set_menu(main_menu, menu_window);
-  set_menu(missile_menu, menu_window);
-  set_menu(log_menu, menu_window);
+  set_menu(samples_menu, menu_window);
+  set_menu(instructions_menu, menu_window);
 
   return main_menu;
 }
@@ -161,7 +161,7 @@ bool check_drive() {
   FILE *fp;
   char path[1035];
 
-  fp = popen("sudo fdisk -l 2>/dev/null | grep sdc | wc -l", "r");
+  fp = popen("sudo fdisk -l 2>/dev/null | grep sda | wc -l", "r");
   if (fp == NULL)
     return false;
 
@@ -176,11 +176,11 @@ bool check_drive() {
 }
 
 void authorize() {
-  popup_window("Checking authorization card", false);
+  popup_window("Kontrola autorizacni karty", false);
   sleep(2);
   while (!check_drive()) {
-    popup_window("Authorization failed - enter auth card and press enter.", true);
-    popup_window("Checking authorization card", false);
+    popup_window("Pristup zamitnut - vlozte kartu a stisknete enter.", true);
+    popup_window("Kontrola autorizacni karty", false);
     sleep(2);
   }
 }
@@ -217,10 +217,10 @@ int main(int argc, char* argv[]) {
   // Set header text
   wbkgd(stdscr, COLOR_PAIR(1));
   attron(A_BOLD);
-  mvprintw(2, MENU_MARGIN_LEFT, "Welcome to VAULT B42 Main Termlink Computer");
-  mvprintw(3, MENU_MARGIN_LEFT, "Clearance: Overseer Eyes Only");
+  mvprintw(2, MENU_MARGIN_LEFT, "Vitejte v systemu VAULT B42 Main Termlink Computer");
+  mvprintw(3, MENU_MARGIN_LEFT, "Opravneni: Pouze pro palubni personal");
   mvprintw(5, MENU_MARGIN_LEFT, "CONFIDENTIAL CONFIDENTIAL CONFIDENTIAL");
-  mvprintw(6, MENU_MARGIN_LEFT, "OVERSEER EYES ONLY | VIOLATION VTP-0100110");
+  mvprintw(6, MENU_MARGIN_LEFT, "POUZE PRO PALUBNI PERSONAL : PORUSENI TRESTNE DLE VTP-0100110");
   attroff(A_BOLD);
 
   // Get size of current terminal window
@@ -266,23 +266,24 @@ int main(int argc, char* argv[]) {
 
         if (current_menu == main_menu) {
           switch (choice) {
-            case 0:  // [VAULT B42 INSTRUCTIONS] TODO
-              text_window(instructions, 1);
+            case 0:  // [Constellatio]
+              text_window(constellatio, 2);
               break;
-            case 1:  // [Nuclear warheads operation manual]
-              text_window(launch, 3);
+            case 1:  // [Konstanta jemne struktury - tip]
+              text_window(fine_structure_constant, 2);
               break;
-            case 2:  // [Nuclear missiles status]
-              current_menu = missile_menu;
+            case 2:  // [Instrukce]
+              //popup_window("Communication channel DISCONNECTED!", true);
+              current_menu = instructions_menu;
               break;
-            case 3:  // [Main Base Communication Channel]
-              popup_window("Communication channel DISCONNECTED!", true);
+            case 3:  // [Vzorky]
+              current_menu = samples_menu;
               break;
-            case 4:  // [Evacuation Instructions]
-              text_window(evacuation, 2);
+            case 4:  // [Prirucka pro zivot v izolaci]
+              text_window(living_in_isolation, 2);
               break;
-            case 5:  // [Overseer's Log]
-              current_menu = log_menu;
+            case 5:  // [Vertykalshtina]
+              text_window(vertykalshtina_lang, 2);
               break;
             case 6:  // [Exit Terminal]
               free_menus();
@@ -297,33 +298,30 @@ int main(int argc, char* argv[]) {
           }
           post_menu(current_menu);
 
-        } else if (current_menu == missile_menu) {
-          if (choice >= 0 && choice < 6) {
-            popup_window("Missile Launch bay is empty!", true);
-          } else if (choice == 6) {
+        } else if (current_menu == samples_menu) {
+          if (choice >= 0 && choice < 5) {
+            popup_window("Vzorek dekontaminovan!", true);
+          } else if (choice == 5) {
             current_menu = main_menu;
           } else {
             UNREACHABLE
           }
 
-        } else if (current_menu == log_menu) {
+        } else if (current_menu == instructions_menu) {
           switch (choice) {
             case 0:
-              text_window(story_1, 1);
+              text_window(instructions_1, 1);
               break;
             case 1:
-              text_window(story_2, 1);
+              text_window(instructions_2, 1);
               break;
             case 2:
-              text_window(story_3, 1);
+              text_window(instructions_3, 1);
               break;
             case 3:
-              text_window(story_4, 1);
+              text_window(instructions_4, 1);
               break;
-            case 4:
-              text_window(story_5, 1);
-              break;
-            case 5:  // [Back]
+            case 4:  // [Zpet]
               current_menu = main_menu;
               break;
             default:
